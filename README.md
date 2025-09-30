@@ -4,7 +4,7 @@ Dashboard de monitoring en temps réel pour l'API Luna Proxy.
 
 ## 🌐 Live Dashboard
 
-**URL:** https://luna-proxy-dashboard.pages.dev/
+**URL:** https://dashboard.ai-gate.dev/
 
 ## ✨ Features
 
@@ -132,7 +132,7 @@ GET https://api.ai-gate.dev/metrics
 
 ## 🔗 Links
 
-- **Dashboard:** https://luna-proxy-dashboard.pages.dev/
+- **Dashboard:** https://dashboard.ai-gate.dev/
 - **API:** https://api.ai-gate.dev/
 - **GitHub:** https://github.com/CosteGieF/luna-proxy-dashboard
 - **Cloudflare:** https://dash.cloudflare.com/602a3ee367f65632af4cab4ca55b46e7/pages/view/luna-proxy-dashboard
