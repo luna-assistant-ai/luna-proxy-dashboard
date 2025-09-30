@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luna Proxy API - Monitoring Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: #667eea;
+      font-size: 2em;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-title {
+      font-size: 0.85em;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .card-value {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .card-subtitle {
+      font-size: 0.9em;
+      color: #999;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    .status-healthy {
+      background: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    .status-error {
+      background: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .chart-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+      height: 400px;
+    }
+
+    .sessions-list {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .session-item {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .session-item:last-child {
+      border-bottom: none;
+    }
+
+    .session-status {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      font-weight: 600;
+    }
+
+    .session-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .session-error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .last-update {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9em;
+      margin-top: 20px;
+    }
+
+    .success-rate-good { color: #10b981; }
+    .success-rate-warning { color: #f59e0b; }
+    .success-rate-bad { color: #ef4444; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚀 Luna Proxy API</h1>
+      <p class="subtitle">Real-time Monitoring Dashboard • Cloudflare Workers Edge</p>
+    </header>
+
+    <div id="loading" class="loading">
+      <h2>Loading metrics...</h2>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+      <div class="grid">
+        <div class="card">
+          <div class="card-title">Status</div>
+          <div class="card-value">
+            <span id="status-indicator" class="status-indicator status-healthy"></span>
+            <span id="status-text">Healthy</span>
+          </div>
+          <div class="card-subtitle" id="uptime">Uptime: --</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Total Sessions</div>
+          <div class="card-value" id="total-sessions">--</div>
+          <div class="card-subtitle" id="storage-type">Storage: --</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Success Rate</div>
+          <div class="card-value" id="success-rate">--%</div>
+          <div class="card-subtitle">
+            <span id="success-count">--</span> success / <span id="error-count">--</span> errors
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Active Sessions</div>
+          <div class="card-value" id="active-sessions">--</div>
+          <div class="card-subtitle">Currently processing</div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="sessionsChart"></canvas>
+      </div>
+
+      <div class="sessions-list">
+        <h2 style="margin-bottom: 20px; color: #333;">Recent Sessions</h2>
+        <div id="recent-sessions"></div>
+      </div>
+    </div>
+
+    <div class="last-update" id="last-update"></div>
+  </div>
+
+  <script>
+    const API_URL = 'https://api.ai-gate.dev';
+    let chart = null;
+    const sessionHistory = [];
+
+    async function fetchMetrics() {
+      try {
+        const response = await fetch(`${API_URL}/metrics`);
+        const data = await response.json();
+
+        // Hide loading, show dashboard
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+
+        // Update status
+        document.getElementById('status-text').textContent = 'Healthy';
+        document.getElementById('status-indicator').className = 'status-indicator status-healthy';
+
+        // Update uptime
+        const uptimeHours = Math.floor(data.uptime_seconds / 3600);
+        const uptimeMinutes = Math.floor((data.uptime_seconds % 3600) / 60);
+        document.getElementById('uptime').textContent =
+          `Uptime: ${uptimeHours}h ${uptimeMinutes}m`;
+
+        // Update total sessions
+        document.getElementById('total-sessions').textContent =
+          data.sessions_total || 0;
+        document.getElementById('storage-type').textContent =
+          `Storage: ${data.storage || 'unknown'}`;
+
+        // Update success rate
+        const successRate = data.success_rate || 0;
+        const successRateEl = document.getElementById('success-rate');
+        successRateEl.textContent = `${successRate.toFixed(1)}%`;
+
+        if (successRate >= 95) {
+          successRateEl.className = 'card-value success-rate-good';
+        } else if (successRate >= 80) {
+          successRateEl.className = 'card-value success-rate-warning';
+        } else {
+          successRateEl.className = 'card-value success-rate-bad';
+        }
+
+        document.getElementById('success-count').textContent =
+          data.sessions_success || 0;
+        document.getElementById('error-count').textContent =
+          data.sessions_error || 0;
+
+        // Update active sessions
+        document.getElementById('active-sessions').textContent =
+          data.active_sessions || 0;
+
+        // Update chart
+        sessionHistory.push({
+          time: new Date().toLocaleTimeString(),
+          total: data.sessions_total || 0,
+          success: data.sessions_success || 0,
+          error: data.sessions_error || 0
+        });
+
+        // Keep last 20 data points
+        if (sessionHistory.length > 20) {
+          sessionHistory.shift();
+        }
+
+        updateChart();
+
+        // Update recent sessions
+        updateRecentSessions(data.recent_sessions || []);
+
+        // Update last update time
+        document.getElementById('last-update').textContent =
+          `Last updated: ${new Date().toLocaleString()}`;
+
+      } catch (error) {
+        console.error('Error fetching metrics:', error);
+        document.getElementById('status-text').textContent = 'Error';
+        document.getElementById('status-indicator').className =
+          'status-indicator status-error';
+      }
+    }
+
+    function updateChart() {
+      const ctx = document.getElementById('sessionsChart');
+
+      if (chart) {
+        chart.data.labels = sessionHistory.map(s => s.time);
+        chart.data.datasets[0].data = sessionHistory.map(s => s.success);
+        chart.data.datasets[1].data = sessionHistory.map(s => s.error);
+        chart.update();
+      } else {
+        chart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: sessionHistory.map(s => s.time),
+            datasets: [
+              {
+                label: 'Success',
+                data: sessionHistory.map(s => s.success),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4
+              },
+              {
+                label: 'Errors',
+                data: sessionHistory.map(s => s.error),
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                tension: 0.4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Sessions Over Time'
+              },
+              legend: {
+                display: true,
+                position: 'bottom'
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+    }
+
+    function updateRecentSessions(sessions) {
+      const container = document.getElementById('recent-sessions');
+
+      if (!sessions || sessions.length === 0) {
+        container.innerHTML = '<p style="color: #999;">No recent sessions</p>';
+        return;
+      }
+
+      container.innerHTML = sessions.slice(0, 10).map(session => {
+        const time = new Date(session.startTime).toLocaleString();
+        const statusClass = session.status === 'success' ?
+          'session-success' : 'session-error';
+
+        return `
+          <div class="session-item">
+            <div>
+              <strong>${session.model}</strong> • ${session.voice}
+              <br>
+              <small style="color: #999;">${time}</small>
+            </div>
+            <span class="session-status ${statusClass}">
+              ${session.status}
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Initial fetch
+    fetchMetrics();
+
+    // Update every 30 seconds
+    setInterval(fetchMetrics, 30000);
+  </script>
+</body>
+</html>
