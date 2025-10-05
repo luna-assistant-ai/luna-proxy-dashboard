@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Gate Dashboard - Usage & Billing</title>
+  <meta name="description" content="Manage your AI-Gate sessions, track usage, and upgrade your plan">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--gray-900);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background: white;
+      padding: 24px 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo h1 {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-free {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    .badge-starter {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge-growth {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: white;
+      padding: 48px 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .hero h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--gray-900);
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--gray-700);
+      margin-bottom: 32px;
+    }
+
+    /* Usage Card */
+    .usage-card {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
+    }
+
+    .usage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .usage-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+
+    .usage-period {
+      font-size: 14px;
+      color: var(--gray-700);
+      background: var(--gray-100);
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    /* Quota Display */
+    .quota-display {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .quota-number {
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .quota-number span {
+      color: var(--gray-300);
+      font-weight: 400;
+    }
+
+    .quota-label {
+      font-size: 16px;
+      color: var(--gray-700);
+      margin-bottom: 4px;
+    }
+
+    .quota-estimate {
+      font-size: 14px;
+      color: var(--gray-700);
+    }
+
+    /* Progress Bar */
+    .progress-container {
+      margin: 32px 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 16px;
+      background: var(--gray-100);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary) 0%, #764ba2 100%);
+      border-radius: 20px;
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    .progress-fill-warning {
+      background: linear-gradient(90deg, var(--warning) 0%, #f97316 100%);
+    }
+
+    .progress-fill-danger {
+      background: linear-gradient(90deg, var(--danger) 0%, #dc2626 100%);
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--gray-700);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--gray-50);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--gray-700);
+    }
+
+    /* Alert Box */
+    .alert {
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .alert-warning {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      color: #92400e;
+    }
+
+    .alert-danger {
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+    }
+
+    .alert-icon {
+      font-size: 24px;
+    }
+
+    /* CTA Button */
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-outline {
+      background: white;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--gray-50);
+    }
+
+    .cta-section {
+      text-align: center;
+      padding: 32px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+
+    .cta-section h3 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--gray-900);
+    }
+
+    .cta-section p {
+      font-size: 16px;
+      color: var(--gray-700);
+      margin-bottom: 24px;
+    }
+
+    /* Features List */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .feature-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .feature-text {
+      font-size: 14px;
+      color: var(--gray-700);
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--gray-200);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .hero h2 {
+        font-size: 24px;
+      }
+
+      .quota-number {
+        font-size: 48px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo">
+        <span style="font-size: 32px;">⚡</span>
+        <h1>AI-Gate</h1>
+      </div>
+      <div class="user-info">
+        <span id="user-email">Loading...</span>
+        <span id="plan-badge" class="badge badge-free">Free</span>
+      </div>
+    </header>
+
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p style="color: white; font-weight: 500;">Loading your usage data...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="dashboard" style="display: none;">
+      <!-- Alert for quota warnings -->
+      <div id="alert-container"></div>
+
+      <!-- Hero Section -->
+      <div class="hero">
+        <h2>Welcome to AI-Gate 👋</h2>
+        <p>The modern, transparent way to use OpenAI Realtime API</p>
+      </div>
+
+      <!-- Usage Card -->
+      <div class="usage-card">
+        <div class="usage-header">
+          <h3 class="usage-title">📊 Session Usage</h3>
+          <span class="usage-period" id="current-period">October 2025</span>
+        </div>
+
+        <!-- Quota Display -->
+        <div class="quota-display">
+          <div class="quota-number">
+            <span id="sessions-used">0</span>
+            <span>/ <span id="sessions-total">100</span></span>
+          </div>
+          <div class="quota-label">Sessions used this month</div>
+          <div class="quota-estimate" id="minutes-estimate">≈ 200 minutes estimated</div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+          </div>
+          <div class="progress-label">
+            <span id="sessions-remaining">100 sessions remaining</span>
+            <span id="percent-used">0% used</span>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="rate-limit-rpm">100</div>
+            <div class="stat-label">Requests per minute</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="concurrent-sessions">1</div>
+            <div class="stat-label">Concurrent sessions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="projects-limit">1</div>
+            <div class="stat-label">Projects included</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="minutes-used">0</div>
+            <div class="stat-label">Minutes used (approx)</div>
+          </div>
+        </div>
+
+        <!-- Plan Features -->
+        <div class="features" id="plan-features">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Upgrade CTA -->
+      <div id="upgrade-cta" class="cta-section" style="display: none;">
+        <h3>🚀 Need more sessions?</h3>
+        <p>Upgrade to unlock higher limits, better support, and priority features</p>
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+          <a href="pricing.html" class="btn btn-primary">View Plans</a>
+          <a href="https://docs.ai-gate.dev" class="btn btn-outline">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://api.ai-gate.dev';
+    const TEST_USER_ID = 'demo_user_dashboard'; // TODO: Replace with real auth
+
+    const PLAN_FEATURES = {
+      free: [
+        { icon: '✓', text: '100 sessions per month' },
+        { icon: '✓', text: '1 project included' },
+        { icon: '✓', text: 'Community support' },
+        { icon: '✓', text: 'Badge required: "Powered by AI-Gate"' },
+      ],
+      starter: [
+        { icon: '✓', text: '5,000 sessions per month' },
+        { icon: '✓', text: '3 projects included' },
+        { icon: '✓', text: 'Email support (48h)' },
+        { icon: '✓', text: 'No badge required' },
+        { icon: '✓', text: 'Priority rate limits' },
+      ],
+      growth: [
+        { icon: '✓', text: '20,000 sessions per month' },
+        { icon: '✓', text: '10 projects included' },
+        { icon: '✓', text: 'Priority support (24h)' },
+        { icon: '✓', text: 'SLA 99.9% uptime' },
+        { icon: '✓', text: 'Advanced analytics' },
+        { icon: '✓', text: 'Dedicated account manager' },
+      ],
+    };
+
+    async function loadUsage() {
+      try {
+        const response = await fetch(`${API_URL}/billing/usage?user_id=${TEST_USER_ID}`);
+        const data = await response.json();
+
+        // Hide loading
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+
+        // Update user info
+        document.getElementById('user-email').textContent = 'demo@ai-gate.dev';
+        const planBadge = document.getElementById('plan-badge');
+        planBadge.textContent = data.plan.toUpperCase();
+        planBadge.className = `badge badge-${data.plan}`;
+
+        // Update quota
+        document.getElementById('sessions-used').textContent = data.sessionsUsed;
+        document.getElementById('sessions-total').textContent = data.sessionsIncluded;
+        document.getElementById('sessions-remaining').textContent =
+          `${data.sessionsRemaining} sessions remaining`;
+        document.getElementById('percent-used').textContent =
+          `${data.percentUsed}% used`;
+        document.getElementById('minutes-estimate').textContent =
+          `≈ ${data.estimatedMinutes.toLocaleString()} minutes estimated`;
+
+        // Update progress bar
+        const progressFill = document.getElementById('progress-fill');
+        progressFill.style.width = `${data.percentUsed}%`;
+
+        if (data.percentUsed >= 90) {
+          progressFill.className = 'progress-fill progress-fill-danger';
+        } else if (data.percentUsed >= 75) {
+          progressFill.className = 'progress-fill progress-fill-warning';
+        }
+
+        // Update stats
+        document.getElementById('rate-limit-rpm').textContent =
+          data.rateLimit.requestsPerMinute.toLocaleString();
+        document.getElementById('concurrent-sessions').textContent =
+          data.rateLimit.concurrent;
+        document.getElementById('projects-limit').textContent =
+          PLAN_FEATURES[data.plan]?.length > 1 ? data.plan === 'free' ? '1' : data.plan === 'starter' ? '3' : '10' : '1';
+        document.getElementById('minutes-used').textContent =
+          data.minutesUsed || 0;
+
+        // Show alerts
+        const alertContainer = document.getElementById('alert-container');
+        if (data.percentUsed >= 100) {
+          alertContainer.innerHTML = `
+            <div class="alert alert-danger">
+              <span class="alert-icon">⛔</span>
+              <div>
+                <strong>Quota Exhausted</strong><br>
+                You've used all your sessions this month. Upgrade to continue.
+              </div>
+            </div>
+          `;
+          document.getElementById('upgrade-cta').style.display = 'block';
+        } else if (data.percentUsed >= 80) {
+          alertContainer.innerHTML = `
+            <div class="alert alert-warning">
+              <span class="alert-icon">⚠️</span>
+              <div>
+                <strong>Approaching Limit</strong><br>
+                You've used ${data.percentUsed}% of your monthly quota. Consider upgrading.
+              </div>
+            </div>
+          `;
+          document.getElementById('upgrade-cta').style.display = 'block';
+        }
+
+        // Update features
+        const featuresContainer = document.getElementById('plan-features');
+        const features = PLAN_FEATURES[data.plan] || PLAN_FEATURES.free;
+        featuresContainer.innerHTML = features.map(f => `
+          <div class="feature-item">
+            <div class="feature-icon">${f.icon}</div>
+            <div class="feature-text">${f.text}</div>
+          </div>
+        `).join('');
+
+        // Update current period
+        const now = new Date();
+        const monthName = now.toLocaleString('default', { month: 'long', year: 'numeric' });
+        document.getElementById('current-period').textContent = monthName;
+
+      } catch (error) {
+        console.error('Error loading usage:', error);
+        document.getElementById('loading').innerHTML = `
+          <p style="color: white;">❌ Error loading data. Please try again.</p>
+        `;
+      }
+    }
+
+    // Load on page load
+    loadUsage();
+
+    // Refresh every 30s
+    setInterval(loadUsage, 30000);
+  </script>
+</body>
+</html>

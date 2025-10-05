@@ -1,118 +1,277 @@
-# 📊 Luna Proxy API - Monitoring Dashboard
+# AI-Gate Dashboard 🎨
 
-Dashboard de monitoring en temps réel pour l'API Luna Proxy.
+Modern, beautiful dashboard for AI-Gate users to manage their usage, track sessions, and upgrade plans.
 
-## 🌐 Live Dashboard
+## 🌐 Live Dashboards
 
-**URL:** https://dashboard.ai-gate.dev/
+- **User Dashboard**: https://dashboard.ai-gate.dev/dashboard.html ✨ NEW
+- **Pricing Page**: https://dashboard.ai-gate.dev/pricing.html ✨ NEW
+- **Monitoring**: https://dashboard.ai-gate.dev/ (Admin)
 
-## ✨ Features
+---
 
-- ✅ Status API en temps réel
-- ✅ Métriques totales (sessions, success rate, uptime)
-- ✅ Graphique temps réel (success vs errors)
-- ✅ Historique des sessions récentes
-- ✅ Auto-refresh toutes les 30 secondes
-- ✅ Design responsive et moderne
-- ✅ Gratuit (Cloudflare Pages)
+## 🎯 Pages
 
-## 📈 Métriques Affichées
+### 1. **User Dashboard** (`dashboard.html`) ✨ NEW
+Beautiful billing & usage dashboard for end users
 
-### Cards Principales
-1. **Status** - Health check + uptime
-2. **Total Sessions** - Compteur total + type de storage
-3. **Success Rate** - Pourcentage avec code couleur
-4. **Active Sessions** - Sessions en cours
+**Features:**
+- ✅ Session quota display with animated progress bars
+- ✅ Real-time usage tracking
+- ✅ Plan features overview
+- ✅ Smart upgrade alerts (80%, 100% quota)
+- ✅ Responsive design with glassmorphism effects
+- ✅ Auto-refresh every 30s
 
-### Graphique
-- Sessions success (vert)
-- Sessions error (rouge)
-- Historique des 20 derniers points
+**API:** `GET /billing/usage?user_id=xxx`
 
-### Liste Sessions
-- 10 dernières sessions
-- Model + voice utilisés
-- Timestamp
-- Status (success/error)
+### 2. **Pricing Page** (`pricing.html`) ✨ NEW
+Stunning pricing page with session-based plans
 
-## 🎨 Design
+**Features:**
+- ✅ 3 tiers: FREE ($0), STARTER ($29), GROWTH ($99)
+- ✅ Transparent session-based pricing
+- ✅ Feature comparison table
+- ✅ Comprehensive FAQ section
+- ✅ One-click Stripe checkout integration
+- ✅ Mobile-optimized
 
-- Gradient violet moderne
-- Cards avec shadow et hover effect
-- Graphique Chart.js interactif
-- Status indicator animé (pulse)
-- Responsive mobile-friendly
+**API:** `POST /billing/checkout`
 
-## 🚀 Déploiement
+### 3. **Monitoring Dashboard** (`index.html`)
+Real-time technical monitoring for administrators
 
-### Cloudflare Pages
-```bash
-wrangler pages deploy . --project-name=luna-proxy-dashboard
+**Features:**
+- ✅ Live metrics tracking
+- ✅ Session success rates
+- ✅ Performance charts
+- ✅ Health status indicators
+- ✅ Recent sessions history
+
+**API:** `GET /metrics`
+
+---
+
+## 🎨 Design Highlights
+
+### Color Palette
+```css
+--primary: #6366f1      /* Indigo */
+--success: #10b981      /* Green */
+--warning: #f59e0b      /* Amber */
+--danger: #ef4444       /* Red */
 ```
 
-### GitHub Repository
-https://github.com/CosteGieF/luna-proxy-dashboard
+### UI Features
+- **Glassmorphism cards** with subtle shadows
+- **Gradient backgrounds** (purple to violet)
+- **Animated progress bars** with shimmer effect
+- **Smooth transitions** on all interactions
+- **Responsive grid layouts** for all screen sizes
 
-### Auto-Deploy
-Le dashboard se redéploie automatiquement à chaque push sur `main`.
+---
 
-## 🔧 Configuration
+## 📊 User Dashboard Data
 
-### API Endpoint
-```javascript
-const API_URL = 'https://api.ai-gate.dev';
-```
-
-### Refresh Interval
-```javascript
-setInterval(fetchMetrics, 30000); // 30 seconds
-```
-
-## 📊 Queries API
-
-Le dashboard consomme l'endpoint:
-```bash
-GET https://api.ai-gate.dev/metrics
-```
-
-**Response:**
+### API Response (`/billing/usage`)
 ```json
 {
-  "uptime_seconds": 123456,
-  "storage": "persistent_kv",
-  "sessions_total": 100,
-  "sessions_success": 95,
-  "sessions_error": 5,
-  "success_rate": 95.0,
-  "active_sessions": 2,
-  "recent_sessions": [
-    {
-      "sessionId": "xxx",
-      "startTime": 1234567890,
-      "model": "gpt-4o-realtime-preview",
-      "voice": "echo",
-      "status": "success"
-    }
-  ]
+  "plan": "free",
+  "sessionsIncluded": 100,
+  "sessionsUsed": 45,
+  "sessionsRemaining": 55,
+  "estimatedMinutes": 200,
+  "minutesUsed": 90,
+  "percentUsed": 45,
+  "rateLimit": {
+    "requestsPerMinute": 100,
+    "concurrent": 1
+  }
 }
 ```
 
-## 🎯 Future Enhancements
+### Displayed Metrics
+1. **Quota Display** - Big, bold session count
+2. **Progress Bar** - Visual usage percentage
+3. **Stats Grid** - Rate limits, concurrent sessions, projects
+4. **Plan Features** - Dynamic list based on plan
+5. **Alerts** - Warning at 80%, danger at 100%
 
-### Priorité 1
-- [ ] Ajouter Analytics Engine queries
-- [ ] Graphique latence moyenne
-- [ ] Alertes visuelles (error rate > 10%)
+---
 
-### Priorité 2
-- [ ] Export métriques CSV
-- [ ] Filtres par date/model/voice
-- [ ] Dark mode toggle
+## 💳 Pricing Page Integration
 
-### Priorité 3
-- [ ] Intégration D1 audit logs
-- [ ] Rate limiting metrics
-- [ ] Geographic distribution (Cloudflare Analytics)
+### Checkout Flow
+```javascript
+// User clicks "Start Free Trial"
+POST /billing/checkout
+{
+  "plan": "starter",
+  "user_id": "user_123",
+  "email": "user@example.com"
+}
+
+// Returns Stripe Checkout URL
+{
+  "url": "https://checkout.stripe.com/..."
+}
+
+// Redirect to Stripe
+window.location.href = data.url;
+```
+
+### Plans
+| Plan | Price | Sessions | Minutes Est | Features |
+|------|-------|----------|-------------|----------|
+| FREE | $0 | 100 | ~200 | 1 project, community support |
+| STARTER | $29 | 5,000 | ~10,000 | 3 projects, email support |
+| GROWTH | $99 | 20,000 | ~40,000 | 10 projects, priority support, SLA 99.9% |
+
+---
+
+## 🚀 Deployment
+
+### Cloudflare Pages
+```bash
+cd luna-proxy-dashboard
+wrangler pages deploy . --project-name=luna-proxy-dashboard
+```
+
+**Live URLs:**
+- Production: https://dashboard.ai-gate.dev
+- Preview: Auto-generated per commit
+
+### Auto-Deploy
+Connected to GitHub repository. Automatic deployment on every push to `main`.
+
+---
+
+## 🛠️ Local Development
+
+1. **Open in browser**
+   ```bash
+   open dashboard.html
+   # or
+   open pricing.html
+   ```
+
+2. **Test with production API**
+   - Connects to `https://api.ai-gate.dev`
+   - Real-time data updates every 30s
+
+3. **Customize**
+   - Edit `TEST_USER_ID` in scripts for testing
+   - Adjust CSS variables for colors
+   - Modify `PLAN_FEATURES` object for features
+
+---
+
+## 📁 File Structure
+
+```
+luna-proxy-dashboard/
+├── index.html         # Admin monitoring dashboard
+├── dashboard.html     # User billing dashboard ✨
+├── pricing.html       # Pricing page ✨
+└── README.md          # This file
+```
+
+---
+
+## 💡 Innovation Points
+
+✨ **Session-based pricing** (not minutes like competitors)
+✨ **Real-time quota visualization** with animations
+✨ **Smart alerts** at usage milestones (80%, 100%)
+✨ **One-click upgrade** via Stripe Checkout
+✨ **Transparent pricing** with no hidden fees
+✨ **Beautiful UI** that builds trust
+✨ **Mobile-first responsive design**
+
+---
+
+## 🎯 User Journey
+
+1. **Visit Dashboard** → See quota usage
+2. **Hit 80% quota** → Warning alert + "Upgrade" CTA
+3. **Click "View Plans"** → Pricing page
+4. **Select Plan** → Stripe Checkout
+5. **Complete Payment** → Webhook updates plan in DB
+6. **Return to Dashboard** → New quota reflected instantly
+
+---
+
+## 📊 Monitoring Dashboard
+
+### Métriques Affichées
+1. **Status** - Health check + uptime
+2. **Total Sessions** - Cumulative counter
+3. **Success Rate** - Percentage with color coding
+4. **Active Sessions** - Currently processing
+
+### Graphique (Chart.js)
+- Sessions success (green line)
+- Sessions errors (red line)
+- Last 20 data points
+- Auto-updates every 30s
+
+---
+
+## 🔧 Configuration
+
+### API Endpoints
+```javascript
+const API_URL = 'https://api.ai-gate.dev';
+
+// Dashboard
+GET /billing/usage?user_id=xxx
+
+// Pricing
+POST /billing/checkout
+{
+  "plan": "starter",
+  "user_id": "user_123",
+  "email": "user@example.com"
+}
+
+// Monitoring
+GET /metrics
+```
+
+### Refresh Intervals
+```javascript
+// Dashboard: Every 30 seconds
+setInterval(loadUsage, 30000);
+
+// Monitoring: Every 30 seconds
+setInterval(fetchMetrics, 30000);
+```
+
+---
+
+## 🔐 TODO: Authentication
+
+Currently uses hardcoded `TEST_USER_ID`. Next steps:
+
+- [ ] Add OAuth (Google/GitHub) via NextAuth
+- [ ] JWT-based sessions with secure cookies
+- [ ] User profile page with settings
+- [ ] Multi-project management UI
+- [ ] API key management
+- [ ] Team collaboration features
+
+---
+
+## 🎨 Technologies
+
+- **Pure HTML/CSS/JavaScript** (no build step!)
+- **Chart.js 4.4.0** for data visualization
+- **Stripe Checkout** for payments
+- **Cloudflare Pages** for hosting
+- **Inter font** from Google Fonts
+- **Modern CSS** (Grid, Flexbox, CSS Variables, Animations)
+
+---
 
 ## 💰 Coût
 
@@ -122,17 +281,17 @@ GET https://api.ai-gate.dev/metrics
 - Unlimited bandwidth
 - **Coût: $0**
 
-## 📝 Technologies
-
-- HTML5
-- CSS3 (Gradient, Flexbox, Grid)
-- JavaScript (ES6+, Fetch API)
-- Chart.js 4.4.0
-- Cloudflare Pages
+---
 
 ## 🔗 Links
 
-- **Dashboard:** https://dashboard.ai-gate.dev/
+- **User Dashboard:** https://dashboard.ai-gate.dev/dashboard.html
+- **Pricing:** https://dashboard.ai-gate.dev/pricing.html
+- **Monitoring:** https://dashboard.ai-gate.dev/
 - **API:** https://api.ai-gate.dev/
 - **GitHub:** https://github.com/CosteGieF/luna-proxy-dashboard
-- **Cloudflare:** https://dash.cloudflare.com/602a3ee367f65632af4cab4ca55b46e7/pages/view/luna-proxy-dashboard
+- **Docs:** https://docs.ai-gate.dev
+
+---
+
+**Built with ❤️ for AI developers who value transparency**
